@@ -1,6 +1,7 @@
 package br.com.correios.cep.api.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Pattern;
@@ -12,7 +13,7 @@ public class CepSearchRequest {
 
     private String cep;
 
-    @NotEmpty(message = "{cepSearchRequest.cep.empty}")
+    @NotBlank(message = "{cepSearchRequest.cep.empty}")
     @Pattern(regexp = "\\d{5}-?\\d{3}", message = "{cepSearchRequest.cep.pattern}")
     public String getCep() {
         return cep;

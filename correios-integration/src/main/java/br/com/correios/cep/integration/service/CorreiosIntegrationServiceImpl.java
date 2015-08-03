@@ -24,7 +24,7 @@ public class CorreiosIntegrationServiceImpl implements CorreiosIntegrationServic
 
         final Map<String, String> vars = Collections.singletonMap("cep", cep);
 
-        final String correiosWSUrl = "http://cep.postmon.com.br/v1/cep/{cep}";
+        final String correiosWSUrl = "http://api.postmon.com.br/v1/cep/{cep}";
         final WsCorreriosCepSearchResponse wsCorreriosCepSearchResponse = restTemplateWrapper
                 .getForObject(correiosWSUrl, WsCorreriosCepSearchResponse.class, vars);
 

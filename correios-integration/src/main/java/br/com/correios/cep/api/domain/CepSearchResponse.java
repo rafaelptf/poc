@@ -25,6 +25,10 @@ public class CepSearchResponse {
         this.state = state;
     }
 
+    public boolean isCepFound() {
+        return cepFound;
+    }
+
     public String getSearchResult() {
         return searchResult;
     }
