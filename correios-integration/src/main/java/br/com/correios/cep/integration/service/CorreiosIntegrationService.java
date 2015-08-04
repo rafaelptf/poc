@@ -17,5 +17,5 @@ public interface CorreiosIntegrationService {
      * @return VO contendo detalhes do cep buscado
      * @throws CepNotFoundException Quando cep nao for encontrado
      */
-    CepSearchDetails findCepDetails(String cep) throws CepNotFoundException, IOException;
+    CepSearchDetails findCepDetails(String cep) throws CepNotFoundException;
 }

@@ -20,25 +20,25 @@ public class StringHelperTest {
 
     @Test
     public void rightReplaceWithOneCharOnly() {
-        String rightReplacedStr = stringHelper.rightReplaceWithZeros("04126181", 1);
-        assertThat(rightReplacedStr, is(equalTo("04126180")));
+        String rightReplacedStr = stringHelper.rightReplaceWithZeros("04018181", 1);
+        assertThat(rightReplacedStr, is(equalTo("04018180")));
     }
 
     @Test
     public void rightReplaceWithMoreThanOneChar() {
-        String rightReplacedStr = stringHelper.rightReplaceWithZeros("04126181", 3);
-        assertThat(rightReplacedStr, is(equalTo("04126000")));
+        String rightReplacedStr = stringHelper.rightReplaceWithZeros("04018181", 3);
+        assertThat(rightReplacedStr, is(equalTo("04018000")));
     }
 
     @Test
     public void rightReplaceWithSizeBiggerThanString() {
-        String rightReplacedStr = stringHelper.rightReplaceWithZeros("04126181", 9);
+        String rightReplacedStr = stringHelper.rightReplaceWithZeros("04018181", 9);
         assertThat(rightReplacedStr, isEmptyOrNullString());
     }
 
     @Test
     public void rightReplaceWithSizeEqualsStringSize() {
-        String rightReplacedStr = stringHelper.rightReplaceWithZeros("04126181", 8);
+        String rightReplacedStr = stringHelper.rightReplaceWithZeros("04018181", 8);
         assertThat(rightReplacedStr, is(equalTo("00000000")));
     }
 }

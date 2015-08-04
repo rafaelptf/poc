@@ -1,14 +1,14 @@
 package br.com.correios.cep.api.controller;
 
 import br.com.correios.cep.api.domain.CepSearchRequest;
+import br.com.correios.cep.api.domain.CepSearchResponse;
 import br.com.correios.cep.api.domain.CepSearchResponseBuilder;
+import br.com.correios.cep.api.exception.CepNotFoundException;
+import br.com.correios.cep.api.service.CepSearchService;
 import br.com.correios.cep.api.service.CepSearchServiceImpl;
 import br.com.correios.cep.integration.domain.CepSearchDetails;
 import br.com.correios.constants.MessageKey;
 import br.com.correios.constants.WsErrors;
-import br.com.correios.cep.api.exception.CepNotFoundException;
-import br.com.correios.cep.api.domain.CepSearchResponse;
-import br.com.correios.cep.api.service.CepSearchService;
 import br.com.correios.util.MessageHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +37,11 @@ public class CepSearchController {
     }
 
     @RequestMapping(value = "/cep", method = RequestMethod.POST)
-    public CepSearchResponse findCepDetailsByJson(@RequestBody @Valid final CepSearchRequest
-                                                          cepSearchRequest) {
+    public CepSearchResponse findCepDetailsByJson(@RequestBody @Valid final CepSearchRequest cepSearchRequest) {
         return findCepDetails(cepSearchRequest.getCep());
     }
 
-    private CepSearchResponse findCepDetails(String cep) {
+    protected CepSearchResponse findCepDetails(String cep) {
         try {
             final CepSearchDetails cepSearchDetails = cepSearchService.findCepDetails(cep);
 

@@ -19,6 +19,13 @@ public class CorreiosIntegrationServiceImpl implements CorreiosIntegrationServic
     @Autowired
     private RestTemplateWrapper restTemplateWrapper;
 
+    /**
+     *  Busca o CEP num servico de terceiros.
+     *
+     * @param cep cep a ser buscado
+     * @return
+     * @throws CepNotFoundException
+     */
     @Override
     public CepSearchDetails findCepDetails(String cep) throws CepNotFoundException {
 
@@ -29,7 +36,7 @@ public class CorreiosIntegrationServiceImpl implements CorreiosIntegrationServic
                 .getForObject(correiosWSUrl, WsCorreriosCepSearchResponse.class, vars);
 
         if (wsCorreriosCepSearchResponse == null) {
-            throw new CepNotFoundException("Cep nao encontrada no WS dos correios", cep);
+            throw new CepNotFoundException("Cep nao encontrado no WS dos correios", cep);
         }
 
         final CepSearchDetails cepSearchDetails =

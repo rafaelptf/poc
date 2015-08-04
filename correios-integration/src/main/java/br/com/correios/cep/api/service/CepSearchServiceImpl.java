@@ -1,7 +1,7 @@
 package br.com.correios.cep.api.service;
 
 import br.com.correios.cep.integration.domain.CepSearchDetails;
-import br.com.correios.cep.integration.service.CorreiosIntegrationServiceImpl;
+import br.com.correios.cep.integration.service.CorreiosIntegrationService;
 import br.com.correios.cep.api.exception.CepNotFoundException;
 import br.com.correios.util.StringHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -22,29 +22,40 @@ public class CepSearchServiceImpl implements CepSearchService {
     private StringHelper stringHelper;
 
     @Autowired
-    private CorreiosIntegrationServiceImpl correiosIntegrationServiceImpl;
+    private CorreiosIntegrationService correiosIntegrationService;
 
     @Override
     public CepSearchDetails findCepDetails(String cep) {
         return findCepDetailsRecursive(cep, 0);
     }
 
-    private CepSearchDetails findCepDetailsRecursive(final String cepNumber, final int retry) {
-        logger.debug("Buscando CEP. cepNumber={} retry={}", cepNumber, retry);
+    /**
+     * Busca o cep recursivamente, caso o serviço de integração com o correio nao ache o endereço para o CEP,
+     * chama o próprio método, porém com o CEP alterado adicionando zero a direita
+     *
+     * O ponto de parada da recursividade é ter buscado todos as combinações de CEP possível, ou seja,
+     * o CEP está igual a 00000-000
+     *
+     * @param cep
+     * @param retry
+     * @return
+     */
+    private CepSearchDetails findCepDetailsRecursive(final String cep, final int retry) {
+        logger.debug("Buscando CEP. cep={} retry={}", cep, retry);
         try {
-            final CepSearchDetails cepDetails = correiosIntegrationServiceImpl.findCepDetails
-                    (cepNumber);
+            final CepSearchDetails cepDetails = correiosIntegrationService.findCepDetails
+                    (cep);
 
-            logger.debug("Cep encontrado com sucesso. cepNumber={} retry={} cepDetails={}", cepNumber, retry, cepDetails);
+            logger.debug("Cep encontrado com sucesso. cep={} retry={} cepDetails={}", cep, retry, cepDetails);
             return cepDetails;
         } catch (CepNotFoundException ex) {
             int newRetry = retry + 1;
 
             //Deve buscar pelo CEP adicionando zeros a direita
-            final String cepToFind = stringHelper.rightReplaceWithZeros(cepNumber, newRetry);
-            if (hasAlreadySearchedAllCepCombinations(cepNumber, cepToFind)) {
-                throw new CepNotFoundException("Cep nao encontrada apos todas tentativas",
-                        cepNumber);
+            final String cepToFind = stringHelper.rightReplaceWithZeros(cep, newRetry);
+            if (hasAlreadySearchedAllCepCombinations(cep, cepToFind)) {
+                throw new CepNotFoundException("Cep nao encontrado apos todas tentativas",
+                        cep);
             }
 
             return findCepDetailsRecursive(cepToFind, newRetry);

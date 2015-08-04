@@ -1,7 +1,8 @@
 package br.com.correios.cep.integration.service;
 
+import br.com.correios.cep.api.exception.CepNotFoundException;
+import br.com.correios.cep.api.service.CepSearchServiceImpl;
 import br.com.correios.cep.integration.domain.CepSearchDetails;
-import br.com.correios.cep.api.service.CepSearchService;
 import br.com.correios.util.StringHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,11 +12,8 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.isNull;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
@@ -28,18 +26,18 @@ public class CepSearchServiceImplTest {
     private StringHelper stringHelper = new StringHelper();
 
     @Mock
-    private CorreiosIntegrationServiceImpl correiosResource;
+    private CorreiosIntegrationService correiosIntegrationService;
 
     @InjectMocks
-    private CepSearchService cepSearchService;
+    private CepSearchServiceImpl cepSearchService;
 
     @Test
     public void findCepDetailsWithCorrectCep() throws Exception {
-        final String cepNumber = "04126181";
+        final String cepNumber = "04117181";
 
-        final CepSearchDetails firstCepSearchDetails = new CepSearchDetails("04126180", "Rua", "Bairro", "Cidade", "Estado");
+        final CepSearchDetails firstCepSearchDetails = new CepSearchDetails("04117180", "Rua", "Bairro", "Cidade", "Estado");
 
-        when(correiosResource.findCepDetails(cepNumber)).thenReturn(firstCepSearchDetails);
+        when(correiosIntegrationService.findCepDetails(cepNumber)).thenReturn(firstCepSearchDetails);
         final CepSearchDetails cepDetails = cepSearchService.findCepDetails(cepNumber);
 
         assertThat(cepDetails, is(equalTo(firstCepSearchDetails)));
@@ -47,13 +45,13 @@ public class CepSearchServiceImplTest {
 
     @Test
     public void findCepDetailsWithNoStreetForFirstSearch() throws Exception {
-        final String cepNumber = "04126181";
+        final String cepNumber = "04117181";
 
-        final CepSearchDetails firstCepSearchDetails = new CepSearchDetails(null, null, null, null, null);
-        final CepSearchDetails secondCepSearchDetails = new CepSearchDetails("04126180", "Rua", "Bairro", "Cidade", "Estado");
+        final CepNotFoundException cepNotFoundException = new CepNotFoundException("CEP nao encontrado", "00000-000");
+        final CepSearchDetails secondCepSearchDetails = new CepSearchDetails("04117180", "Rua", "Bairro", "Cidade", "Estado");
 
-        when(correiosResource.findCepDetails(cepNumber)).thenReturn(firstCepSearchDetails);
-        when(correiosResource.findCepDetails("04126180")).thenReturn(secondCepSearchDetails);
+        when(correiosIntegrationService.findCepDetails(cepNumber)).thenThrow(cepNotFoundException);
+        when(correiosIntegrationService.findCepDetails("04117180")).thenReturn(secondCepSearchDetails);
 
         final CepSearchDetails cepDetails = cepSearchService.findCepDetails(cepNumber);
 
@@ -65,21 +63,24 @@ public class CepSearchServiceImplTest {
     @Test
     public void findCepDetailsWithNoStreet() throws Exception {
         final String cepNumber = "421";
+        final CepNotFoundException cepNotFoundException = new CepNotFoundException("CEP nao encontrado", "00000-000");
 
-        final CepSearchDetails firstCepSearchDetails = new CepSearchDetails(null, null, null, null, null);
-        final CepSearchDetails secondCepSearchDetails = new CepSearchDetails(null, null, null, null, null);
-        final CepSearchDetails thirdCepSearchDetails = new CepSearchDetails(null, null, null, null, null);
+        when(correiosIntegrationService.findCepDetails(cepNumber)).thenThrow(cepNotFoundException);
+        when(correiosIntegrationService.findCepDetails("420")).thenThrow(cepNotFoundException);
+        when(correiosIntegrationService.findCepDetails("400")).thenThrow(cepNotFoundException);
 
-        when(correiosResource.findCepDetails(cepNumber)).thenReturn(firstCepSearchDetails);
-        when(correiosResource.findCepDetails("420")).thenReturn(secondCepSearchDetails);
-        when(correiosResource.findCepDetails("400")).thenReturn(thirdCepSearchDetails);
-
-        final CepSearchDetails cepDetails = cepSearchService.findCepDetails(cepNumber);
+        CepNotFoundException cepNotFoundExceptionResult = null;
+        try {
+            final CepSearchDetails cepDetails = cepSearchService.findCepDetails(cepNumber);
+        } catch (CepNotFoundException e) {
+            cepNotFoundExceptionResult = e;
+        }
 
         Mockito.verify(stringHelper).rightReplaceWithZeros(cepNumber, 1);
         Mockito.verify(stringHelper).rightReplaceWithZeros("420", 2);
         Mockito.verify(stringHelper).rightReplaceWithZeros("400", 3);
 
-        assertThat(cepDetails, is(nullValue()));
+        assertThat(cepNotFoundExceptionResult, is(notNullValue()));
+        assertThat(cepNotFoundExceptionResult.getMessage(), is(equalTo("Cep nao encontrado apos todas tentativas")));
     }
 }
