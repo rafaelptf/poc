@@ -3,7 +3,7 @@ package br.com.correios.cep.integration.service;
 import br.com.correios.cep.integration.domain.CepSearchDetails;
 import br.com.correios.cep.integration.domain.WsCorreriosCepSearchResponse;
 import br.com.correios.cep.api.exception.CepNotFoundException;
-import br.com.correios.util.RestTemplateWrapper;
+import br.com.correios.common.util.RestTemplateWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

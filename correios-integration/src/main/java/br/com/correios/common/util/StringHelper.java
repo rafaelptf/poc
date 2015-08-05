@@ -1,4 +1,4 @@
-package br.com.correios.util;
+package br.com.correios.common.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;

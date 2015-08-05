@@ -1,10 +1,10 @@
-package br.com.correios.exception.handler;
+package br.com.correios.common.handler;
 
-import br.com.correios.constants.WsErrors;
-import br.com.correios.json.FieldValidationError;
-import br.com.correios.json.RequestError;
-import br.com.correios.json.RequestValidationError;
-import br.com.correios.util.MessageHelper;
+import br.com.correios.common.constants.WsErrors;
+import br.com.correios.common.json.FieldValidationError;
+import br.com.correios.common.json.RequestError;
+import br.com.correios.common.json.RequestValidationError;
+import br.com.correios.common.util.MessageHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

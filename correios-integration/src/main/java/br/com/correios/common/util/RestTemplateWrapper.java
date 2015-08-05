@@ -1,4 +1,4 @@
-package br.com.correios.util;
+package br.com.correios.common.util;
 
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package br.com.correios.constants;
+package br.com.correios.common.constants;
 
 /**
  * Created by rpeixoto on 03/08/15.

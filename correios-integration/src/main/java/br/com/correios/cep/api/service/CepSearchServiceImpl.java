@@ -3,7 +3,7 @@ package br.com.correios.cep.api.service;
 import br.com.correios.cep.integration.domain.CepSearchDetails;
 import br.com.correios.cep.integration.service.CorreiosIntegrationService;
 import br.com.correios.cep.api.exception.CepNotFoundException;
-import br.com.correios.util.StringHelper;
+import br.com.correios.common.util.StringHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

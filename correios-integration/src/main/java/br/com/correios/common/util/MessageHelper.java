@@ -1,7 +1,7 @@
-package br.com.correios.util;
+package br.com.correios.common.util;
 
-import br.com.correios.constants.MessageKey;
-import br.com.correios.constants.WsErrors;
+import br.com.correios.common.constants.MessageKey;
+import br.com.correios.common.constants.WsErrors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
