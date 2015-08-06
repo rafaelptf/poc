@@ -13,8 +13,10 @@ import br.com.correios.common.util.MessageHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 /**
@@ -32,16 +34,18 @@ public class CepSearchController {
     private MessageHelper messageHelper;
 
     @RequestMapping(value = "/cep/{cep}", method = RequestMethod.GET)
-    public CepSearchResponse findCepDetailsByPathVariable(@PathVariable("cep") final String cep) {
-        return findCepDetails(cep);
+    public CepSearchResponse findCepDetailsByPathVariable(@PathVariable("cep") @Valid final String cep,
+                                                          final HttpServletResponse response) {
+        return findCepDetails(cep, response);
     }
 
     @RequestMapping(value = "/cep", method = RequestMethod.POST)
-    public CepSearchResponse findCepDetailsByJson(@RequestBody @Valid final CepSearchRequest cepSearchRequest) {
-        return findCepDetails(cepSearchRequest.getCep());
+    public CepSearchResponse findCepDetailsByJson(@RequestBody @Valid final CepSearchRequest cepSearchRequest,
+                                                  final HttpServletResponse response) {
+        return findCepDetails(cepSearchRequest.getCep(), response);
     }
 
-    protected CepSearchResponse findCepDetails(String cep) {
+    protected CepSearchResponse findCepDetails(String cep, HttpServletResponse response) {
         try {
             final CepSearchDetails cepSearchDetails = cepSearchService.findCepDetails(cep);
 
@@ -57,6 +61,7 @@ public class CepSearchController {
 
         } catch (CepNotFoundException e) {
             logger.debug("CEP nao encontrado. cep={}", cep);
+            response.setStatus(HttpStatus.NOT_FOUND.value());
             final String cepNotFoundMessage = messageHelper.getWsErrorMessage(WsErrors.CEP_NOT_FOUND);
             return CepSearchResponseBuilder.cepNotFound(cepNotFoundMessage).build();
         }

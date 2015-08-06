@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.hamcrest.Matchers.*;
 
@@ -40,7 +41,7 @@ public class CepSearchControllerTest {
         Mockito.when(cepSearchService.findCepDetails(cep)).thenThrow(new CepNotFoundException("CEP nao encontrado", "00000-000"));
         Mockito.when(messageHelper.getWsErrorMessage(WsErrors.CEP_NOT_FOUND)).thenReturn(cepNotFoundMsg);
 
-        final CepSearchResponse cepSearchResponse = cepSearchController.findCepDetails(cep);
+        final CepSearchResponse cepSearchResponse = cepSearchController.findCepDetails(cep, new MockHttpServletResponse());
 
         Assert.assertThat(cepSearchResponse, is(notNullValue()));
         Assert.assertThat(cepSearchResponse.isCepFound(), is(false));
@@ -56,7 +57,7 @@ public class CepSearchControllerTest {
         Mockito.when(cepSearchService.findCepDetails(cep)).thenReturn(cepSearchDetails);
         Mockito.when(messageHelper.getMessage(MessageKey.CEP_FOUND)).thenReturn(cepFounMsg);
 
-        final CepSearchResponse cepSearchResponse = cepSearchController.findCepDetails(cep);
+        final CepSearchResponse cepSearchResponse = cepSearchController.findCepDetails(cep, new MockHttpServletResponse());
 
         Assert.assertThat(cepSearchResponse, is(notNullValue()));
         Assert.assertThat(cepSearchResponse.isCepFound(), is(true));

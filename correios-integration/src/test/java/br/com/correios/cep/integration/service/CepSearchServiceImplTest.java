@@ -55,7 +55,7 @@ public class CepSearchServiceImplTest {
 
         final CepSearchDetails cepDetails = cepSearchService.findCepDetails(cepNumber);
 
-        Mockito.verify(stringHelper).rightReplaceWithZeros(cepNumber, 1);
+        Mockito.verify(stringHelper).rightReplaceWithZeroFirstNonZeroChar(cepNumber);
 
         assertThat(cepDetails, is(equalTo(secondCepSearchDetails)));
     }
@@ -76,9 +76,9 @@ public class CepSearchServiceImplTest {
             cepNotFoundExceptionResult = e;
         }
 
-        Mockito.verify(stringHelper).rightReplaceWithZeros(cepNumber, 1);
-        Mockito.verify(stringHelper).rightReplaceWithZeros("420", 2);
-        Mockito.verify(stringHelper).rightReplaceWithZeros("400", 3);
+        Mockito.verify(stringHelper).rightReplaceWithZeroFirstNonZeroChar(cepNumber);
+        Mockito.verify(stringHelper).rightReplaceWithZeroFirstNonZeroChar("420");
+        Mockito.verify(stringHelper).rightReplaceWithZeroFirstNonZeroChar("400");
 
         assertThat(cepNotFoundExceptionResult, is(notNullValue()));
         assertThat(cepNotFoundExceptionResult.getMessage(), is(equalTo("Cep nao encontrado apos todas tentativas")));

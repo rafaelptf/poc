@@ -26,7 +26,21 @@ public class CepSearchServiceImpl implements CepSearchService {
 
     @Override
     public CepSearchDetails findCepDetails(String cep) {
-        return findCepDetailsRecursive(cep, 0);
+        final String plainCepText = getPlainCepText(cep);
+        return findCepDetailsRecursive(plainCepText);
+    }
+
+    /**
+     * Caso o cep esteja no padrão 00000-000, remove o caracter "-"
+     *
+     * @param cep
+     * @return
+     */
+    private String getPlainCepText(String cep) {
+        if(StringUtils.contains(cep, "-")) {
+            return StringUtils.remove(cep, "-");
+        }
+        return cep;
     }
 
     /**
@@ -37,28 +51,26 @@ public class CepSearchServiceImpl implements CepSearchService {
      * o CEP está igual a 00000-000
      *
      * @param cep
-     * @param retry
      * @return
      */
-    private CepSearchDetails findCepDetailsRecursive(final String cep, final int retry) {
-        logger.debug("Buscando CEP. cep={} retry={}", cep, retry);
+    private CepSearchDetails findCepDetailsRecursive(final String cep) {
+        logger.debug("Buscando CEP. cep={}", cep);
         try {
             final CepSearchDetails cepDetails = correiosIntegrationService.findCepDetails
                     (cep);
 
-            logger.debug("Cep encontrado com sucesso. cep={} retry={} cepDetails={}", cep, retry, cepDetails);
+            logger.debug("Cep encontrado com sucesso. cep={} retry={} cepDetails={}", cep, cepDetails);
             return cepDetails;
         } catch (CepNotFoundException ex) {
-            int newRetry = retry + 1;
 
             //Deve buscar pelo CEP adicionando zeros a direita
-            final String cepToFind = stringHelper.rightReplaceWithZeros(cep, newRetry);
+            final String cepToFind = stringHelper.rightReplaceWithZeroFirstNonZeroChar(cep);
             if (hasAlreadySearchedAllCepCombinations(cep, cepToFind)) {
                 throw new CepNotFoundException("Cep nao encontrado apos todas tentativas",
                         cep);
             }
 
-            return findCepDetailsRecursive(cepToFind, newRetry);
+            return findCepDetailsRecursive(cepToFind);
         }
     }
 
