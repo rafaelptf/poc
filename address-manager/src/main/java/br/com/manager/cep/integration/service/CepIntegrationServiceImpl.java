@@ -5,6 +5,7 @@ import br.com.manager.cep.integration.domain.CepSearchResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.DefaultResponseErrorHandler;
@@ -22,6 +23,9 @@ import static br.com.manager.cep.integration.CepIntegrationConstants.SUCCESS_CEP
 public class CepIntegrationServiceImpl implements CepIntegrationService {
 
     private final static Logger logger = LoggerFactory.getLogger(CepIntegrationServiceImpl.class);
+
+    @Value("${cep.search.url}")
+    private String cepSearchUrl;
 
     @Override
     public boolean isValidCep(String cep) {
@@ -42,7 +46,7 @@ public class CepIntegrationServiceImpl implements CepIntegrationService {
 
         final CepSearchResponse cepSearchResponse;
         try {
-            cepSearchResponse = restTemplate.postForObject("http://localhost:8080/cep",
+            cepSearchResponse = restTemplate.postForObject(cepSearchUrl,
                     new CepSearchRequest(plainCepRequestText),
                     CepSearchResponse.class);
         } catch (RestClientException e) {

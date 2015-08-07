@@ -8,12 +8,18 @@ import java.util.List;
 public class WsListResponse<T> extends WsResponse {
 
     private final List<T> content;
+    private final String nextPageUrl;
 
-    public WsListResponse(List<T> content) {
+    public WsListResponse(List<T> content, String nextPageUrl) {
         this.content = content;
+        this.nextPageUrl = nextPageUrl;
     }
 
     public List<T> getContent() {
         return content;
+    }
+
+    public String getNextPageUrl() {
+        return nextPageUrl;
     }
 }

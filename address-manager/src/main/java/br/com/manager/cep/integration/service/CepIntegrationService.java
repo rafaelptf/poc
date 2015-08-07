@@ -5,5 +5,14 @@ package br.com.manager.cep.integration.service;
  */
 public interface CepIntegrationService {
 
+    /**
+     * Valida o CEP utilizando o servico desenvolvido
+     *
+     * So retorna true caso o CEP seja encontrado em sua totalidade.
+     * CEP: 04126-055 Nao valido, apesar do servico desenvolvido responder com sucesso o cep 04126-050
+     *
+     * @param cep
+     * @return
+     */
     boolean isValidCep(String cep);
 }

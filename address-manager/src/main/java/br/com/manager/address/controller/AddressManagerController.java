@@ -1,9 +1,6 @@
 package br.com.manager.address.controller;
 
-import br.com.manager.address.domain.Address;
-import br.com.manager.address.domain.AddressCreationRequest;
-import br.com.manager.address.domain.AddressCreationResponse;
-import br.com.manager.address.domain.CompleteAddress;
+import br.com.manager.address.domain.*;
 import br.com.manager.address.exception.AddressNotFoundException;
 import br.com.manager.address.exception.InvalidCepException;
 import br.com.manager.address.service.AddressService;
@@ -14,8 +11,10 @@ import br.com.manager.common.util.WsResponseBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -35,6 +34,9 @@ public class AddressManagerController {
     @Autowired
     private WsResponseBuilder wsResponseBuilder;
 
+    @Value("${application.base.url}")
+    private String applicationBaseUrl;
+
     @RequestMapping(value = "/address", method = RequestMethod.POST)
     public AddressCreationResponse createAddress(@RequestBody @Valid final AddressCreationRequest addressCreationRequest) {
         logger.debug("Adicionando endereco. addressCreationRequest={}", addressCreationRequest);
@@ -48,17 +50,34 @@ public class AddressManagerController {
     }
 
     @RequestMapping(value = "/address", method = RequestMethod.GET)
-    public WsListResponse<List<CompleteAddress>> findAddress() {
-        final List<CompleteAddress> completeAddresses = addressService.findAll();
+    public WsListResponse<List<CompleteAddress>> findAddress(@RequestParam(value = "page", required = false) Integer page) {
+
+        final CompleteAddressList completeAddressList = addressService.findAll(page);
+        final String nextPageUrl = getNextPageUrl(page, completeAddressList);
 
         //Monta a resposta
-        final WsListResponse completeAddressWsListResponse = new WsListResponse<>(completeAddresses);
+        final WsListResponse completeAddressWsListResponse = new WsListResponse<>(completeAddressList.getCompleteAddresses(), nextPageUrl);
         return wsResponseBuilder.getWsResponse(WsResponseCode.ADDRESS_FIND_SUCCESS, completeAddressWsListResponse);
+    }
+
+    private String getNextPageUrl(@RequestParam(value = "page", required = false) Integer page, CompleteAddressList completeAddressList) {
+
+        if (!completeAddressList.hasNextPage()) {
+            return null;
+        }
+
+        final String nextPageUrl;
+        final int nextPageIndex = page + 1;
+
+        UriComponentsBuilder nextPageUrlBuilder = UriComponentsBuilder.fromHttpUrl(applicationBaseUrl);
+        nextPageUrlBuilder.path("/address");
+        nextPageUrlBuilder.queryParam("page", nextPageIndex);
+        return nextPageUrlBuilder.toUriString();
     }
 
     @RequestMapping(value = "/address/{addressId}", method = RequestMethod.GET)
     public Address findAddress(@PathVariable("addressId") final Long addressId,
-                                                    final HttpServletResponse response) {
+                               final HttpServletResponse response) {
         final Address address = addressService.findById(addressId);
 
         //Monta a resposta
