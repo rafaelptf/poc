@@ -6,20 +6,21 @@ package br.com.correios.common.constants;
 public enum WsResponseCode {
 
     //Range de 2000 a 3000: Mensagens de sucesso
-    CEP_FOUND(2001l, MessageKey.CEP_FOUND),
+    CEP_FOUND(2001l, "cep.found"),
 
     //Range de 4000 a 5000: Mensagens de erro que foram gerados decorrentes de valores invalidos na requisicao
-    REQUEST_VALIDATION_ERROR(4001l, MessageKey.REQUEST_VALIDATION_ERROR),
-    HTTP_METHOD_NOT_ALLOWED_ERROR(4002l, MessageKey.HTTP_METHOD_NOT_ALLOWED_ERROR),
-    CEP_NOT_FOUND(4003l, MessageKey.CEP_NOT_FOUND),
+    REQUEST_VALIDATION_ERROR(4001l, "request.validation.error"),
+    HTTP_METHOD_NOT_ALLOWED_ERROR(4002l, "httpMethod.notAllowed"),
+    CEP_NOT_FOUND(4003l, "cep.notFound"),
+    UNSUPPORTED_MEDIA_TYPE(4004l, "unsupported.mediaType"),
 
     //Range de 5000 a 6000: Mensagens de erro decorrentes de problemas na propria aplicacao
-    GENERIC_ERROR(5001l, MessageKey.GENERIC_ERROR);
+    GENERIC_ERROR(5001l, "generic.error");
 
     private final Long code;
-    private final MessageKey messageKey;
+    private final String messageKey;
 
-    WsResponseCode(Long code, MessageKey messageKey) {
+    WsResponseCode(Long code, String messageKey) {
         this.code = code;
         this.messageKey = messageKey;
     }
@@ -28,7 +29,7 @@ public enum WsResponseCode {
         return code;
     }
 
-    public MessageKey getMessageKey() {
+    public String getMessageKey() {
         return messageKey;
     }
 }

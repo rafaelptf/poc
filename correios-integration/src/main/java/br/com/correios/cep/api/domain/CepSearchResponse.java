@@ -1,12 +1,12 @@
 package br.com.correios.cep.api.domain;
 
-import br.com.correios.common.domain.BaseResponse;
+import br.com.correios.common.domain.WsResponse;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Created by rpeixoto on 02/08/15.
  */
-public class CepSearchResponse extends BaseResponse {
+public class CepSearchResponse extends WsResponse{
 
     private final String cep;
     private final String street;
@@ -14,8 +14,7 @@ public class CepSearchResponse extends BaseResponse {
     private final String city;
     private final String state;
 
-    public CepSearchResponse(Long code, String message, String cep, String street, String district, String city, String state) {
-        super(code, message);
+    public CepSearchResponse(String cep, String street, String district, String city, String state) {
         this.cep = cep;
         this.street = street;
         this.district = district;

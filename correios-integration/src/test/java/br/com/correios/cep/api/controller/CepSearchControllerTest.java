@@ -5,6 +5,7 @@ import br.com.correios.cep.api.exception.CepNotFoundException;
 import br.com.correios.cep.api.service.CepSearchService;
 import br.com.correios.cep.integration.domain.CepSearchDetails;
 import br.com.correios.common.constants.WsResponseCode;
+import br.com.correios.common.domain.WsResponse;
 import br.com.correios.common.util.MessageSourceWrapper;
 import org.junit.Assert;
 import org.junit.Test;
@@ -57,7 +58,7 @@ public class CepSearchControllerTest {
 
         when(messageSourceWrapper.getWsResponseMessage(WsResponseCode.CEP_NOT_FOUND)).thenReturn(cepNotFoundMsg);
 
-        final CepSearchResponse cepSearchResponse = cepSearchController.cepNotFoundHandler(ex);
+        final WsResponse cepSearchResponse  = cepSearchController.cepNotFoundHandler(ex);
 
         Assert.assertThat(cepSearchResponse, is(notNullValue()));
         Assert.assertThat(cepSearchResponse.getCode(), is(equalTo(4003l)));
@@ -73,9 +74,9 @@ public class CepSearchControllerTest {
         when(cepSearchService.findCepDetails(cep)).thenReturn(cepSearchDetails);
         when(messageSourceWrapper.getWsResponseMessage(WsResponseCode.CEP_FOUND)).thenReturn(cepFounMsg);
 
-        final CepSearchResponse cepSearchResponse = cepSearchController.findCepDetails(cep, new MockHttpServletResponse());
+        final CepSearchResponse cepSearchResponse  = cepSearchController.findCepDetails(cep, new MockHttpServletResponse());
 
-        Assert.assertThat(cepSearchResponse, is(notNullValue()));
+                Assert.assertThat(cepSearchResponse, is(notNullValue()));
         Assert.assertThat(cepSearchResponse.getCode(), is(equalTo(2001l)));
         Assert.assertThat(cepSearchResponse.getMessage(), is(equalTo(cepFounMsg)));
         Assert.assertThat(cepSearchResponse.getCep(), is(equalTo("00000-000")));

@@ -1,10 +1,9 @@
 package br.com.correios.common.handler;
 
 import br.com.correios.common.constants.WsResponseCode;
-import br.com.correios.common.domain.BaseResponse;
 import br.com.correios.common.domain.FieldValidationError;
-import br.com.correios.common.domain.RequestValidationError;
-import br.com.correios.common.util.MessageSourceWrapper;
+import br.com.correios.common.domain.WsResponse;
+import br.com.correios.common.util.WsResponseBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -32,36 +32,38 @@ public class RestExceptionHandler {
     private final static Logger logger = LoggerFactory.getLogger(RestExceptionHandler.class);
 
     @Autowired
-    private MessageSourceWrapper messageSourceWrapper;
+    private WsResponseBuilder wsResponseBuilder;
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(value = HttpStatus.METHOD_NOT_ALLOWED)
     @ResponseBody
-    public BaseResponse requestMethodNotSupported(HttpServletRequest req, HttpRequestMethodNotSupportedException ex) {
-        final String errorMessage = messageSourceWrapper.getWsResponseMessage(WsResponseCode.HTTP_METHOD_NOT_ALLOWED_ERROR, ex.getMethod());
-        final BaseResponse baseResponse = new BaseResponse(WsResponseCode.HTTP_METHOD_NOT_ALLOWED_ERROR.getCode(), errorMessage);
-        return baseResponse;
+    public WsResponse requestMethodNotSupported(HttpServletRequest req, HttpRequestMethodNotSupportedException ex) {
+        return wsResponseBuilder.getNoContetyWsResponse(
+                WsResponseCode.HTTP_METHOD_NOT_ALLOWED_ERROR,
+                ex.getMethod());
     }
 
     @ExceptionHandler(value = {Exception.class, RuntimeException.class})
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public BaseResponse requestHandlingGenericException(HttpServletRequest req, Exception ex) {
+    public WsResponse requestHandlingGenericException(HttpServletRequest req, Exception ex) {
         logger.error("Erro ao processar requisicao. url={}", req.getRequestURI(), ex);
-
-        final String errorMessage = messageSourceWrapper.getWsResponseMessage(WsResponseCode.GENERIC_ERROR);
-        final BaseResponse baseResponse = new BaseResponse(WsResponseCode.GENERIC_ERROR.getCode(), errorMessage);
-        return baseResponse;
+        return wsResponseBuilder.getNoContetyWsResponse(WsResponseCode.GENERIC_ERROR);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public RequestValidationError requestHandlingMethodArgumentNotValidException(HttpServletRequest req, MethodArgumentNotValidException ex) {
+    public WsResponse requestHandlingMethodArgumentNotValidException(HttpServletRequest req, MethodArgumentNotValidException ex) {
         final FieldValidationError[] fieldValidationErrors = getFieldValidationErrors(ex);
-        final String errorMessage = messageSourceWrapper.getWsResponseMessage(WsResponseCode.REQUEST_VALIDATION_ERROR);
-        final RequestValidationError requestValidationError = new RequestValidationError(WsResponseCode.REQUEST_VALIDATION_ERROR.getCode(), errorMessage, fieldValidationErrors);
-        return requestValidationError;
+        return wsResponseBuilder.getFieldValidationErrorWsResponse(WsResponseCode.REQUEST_VALIDATION_ERROR, fieldValidationErrors);
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    @ResponseStatus(value = HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    @ResponseBody
+    public WsResponse requestHandlingHttpMediaTypeException(HttpMediaTypeNotSupportedException ex) {
+        return wsResponseBuilder.getNoContetyWsResponse(WsResponseCode.UNSUPPORTED_MEDIA_TYPE, ex.getContentType());
     }
 
     private FieldValidationError[] getFieldValidationErrors(MethodArgumentNotValidException ex) {

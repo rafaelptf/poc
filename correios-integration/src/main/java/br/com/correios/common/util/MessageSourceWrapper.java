@@ -1,6 +1,5 @@
 package br.com.correios.common.util;
 
-import br.com.correios.common.constants.MessageKey;
 import br.com.correios.common.constants.WsResponseCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -26,9 +25,9 @@ public class MessageSourceWrapper {
         return getMessage(wsResponseCode.getMessageKey(), args);
     }
 
-    private String getMessage(MessageKey messageKey, Object[] args) {
+    private String getMessage(String messageKey, Object[] args) {
         final Locale locale = LocaleContextHolder.getLocale();
-        return messageSource.getMessage(messageKey.getMessageKey(), args, locale);
+        return messageSource.getMessage(messageKey, args, locale);
     }
 
 

@@ -8,7 +8,9 @@ import br.com.correios.cep.api.service.CepSearchService;
 import br.com.correios.cep.api.service.CepSearchServiceImpl;
 import br.com.correios.cep.integration.domain.CepSearchDetails;
 import br.com.correios.common.constants.WsResponseCode;
+import br.com.correios.common.domain.WsResponse;
 import br.com.correios.common.util.MessageSourceWrapper;
+import br.com.correios.common.util.WsResponseBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,24 +34,24 @@ public class CepSearchController {
     @Autowired
     private MessageSourceWrapper messageSourceWrapper;
 
+    @Autowired
+    private WsResponseBuilder wsResponseBuilder;
+
     @RequestMapping(value = "/cep/{cep}", method = RequestMethod.GET)
     public CepSearchResponse findCepDetailsByPathVariable(@PathVariable("cep") @Valid final String cep,
-                                                          final HttpServletResponse response) {
+                                                                      final HttpServletResponse response) {
         return findCepDetails(cep, response);
     }
 
     @RequestMapping(value = "/cep", method = RequestMethod.POST)
     public CepSearchResponse findCepDetailsByJson(@RequestBody @Valid final CepSearchRequest cepSearchRequest,
-                                                  final HttpServletResponse response) {
+                                                              final HttpServletResponse response) {
         return findCepDetails(cepSearchRequest.getCep(), response);
     }
 
     protected CepSearchResponse findCepDetails(String cep, HttpServletResponse response) {
         final CepSearchDetails cepSearchDetails = cepSearchService.findCepDetails(cep);
-
-        final String cepFoundMessage = messageSourceWrapper.getWsResponseMessage(WsResponseCode.CEP_FOUND);
-        return CepSearchResponseBuilder
-                .cepFound(cepFoundMessage)
+        final CepSearchResponse cepSearchResponse = new CepSearchResponseBuilder()
                 .setCep(cepSearchDetails.getCep())
                 .setStreet(cepSearchDetails.getStreet())
                 .setDistrict(cepSearchDetails.getDistrict())
@@ -57,16 +59,15 @@ public class CepSearchController {
                 .setState(cepSearchDetails.getState())
                 .build();
 
+        return wsResponseBuilder.getWsResponse(WsResponseCode.CEP_FOUND, cepSearchResponse);
     }
 
 
     @ExceptionHandler(CepNotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     @ResponseBody
-    public CepSearchResponse cepNotFoundHandler(CepNotFoundException ex) {
+    public WsResponse cepNotFoundHandler(CepNotFoundException ex) {
         logger.debug("CEP nao encontrado. cep={}", ex.getCep());
-
-        final String cepNotFoundMessage = messageSourceWrapper.getWsResponseMessage(WsResponseCode.CEP_NOT_FOUND);
-        return CepSearchResponseBuilder.cepNotFound(cepNotFoundMessage).build();
+        return wsResponseBuilder.getNoContetyWsResponse(WsResponseCode.CEP_NOT_FOUND);
     }
 }

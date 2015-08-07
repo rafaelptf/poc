@@ -5,12 +5,11 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 /**
  * Created by rpeixoto on 03/08/15.
  */
-public class RequestValidationError extends BaseResponse {
+public class RequestValidationError  {
 
     private FieldValidationError [] errors;
 
-    public RequestValidationError(Long code, String message, FieldValidationError[] errors) {
-        super(code, message);
+    public RequestValidationError(FieldValidationError[] errors) {
         this.errors = errors;
     }
 
