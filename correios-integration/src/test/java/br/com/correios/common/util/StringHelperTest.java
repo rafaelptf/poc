@@ -19,26 +19,26 @@ public class StringHelperTest {
     }
 
     @Test
-    public void rightReplaceWithOneCharOnly() {
+    public void rightReplaceWithFirstCharNonZero() {
         String rightReplacedStr = stringHelper.rightReplaceWithZeroFirstNonZeroChar("04018181");
         assertThat(rightReplacedStr, is(equalTo("04018180")));
     }
 
     @Test
-    public void rightReplaceWithMoreThanOneChar() {
-        String rightReplacedStr = stringHelper.rightReplaceWithZeroFirstNonZeroChar("04018181");
+    public void rightReplaceWithThirdCharNonZero() {
+        String rightReplacedStr = stringHelper.rightReplaceWithZeroFirstNonZeroChar("04018100");
         assertThat(rightReplacedStr, is(equalTo("04018000")));
     }
 
     @Test
-    public void rightReplaceWithSizeBiggerThanString() {
-        String rightReplacedStr = stringHelper.rightReplaceWithZeroFirstNonZeroChar("04018181");
-        assertThat(rightReplacedStr, isEmptyOrNullString());
+    public void rightReplaceWithLastCharNonZero() {
+        String rightReplacedStr = stringHelper.rightReplaceWithZeroFirstNonZeroChar("90000000");
+        assertThat(rightReplacedStr, is(equalTo("00000000")));
     }
 
     @Test
-    public void rightReplaceWithSizeEqualsStringSize() {
-        String rightReplacedStr = stringHelper.rightReplaceWithZeroFirstNonZeroChar("04018181");
+    public void rightReplaceAlreadyOnlyZerosString() {
+        String rightReplacedStr = stringHelper.rightReplaceWithZeroFirstNonZeroChar("00000000");
         assertThat(rightReplacedStr, is(equalTo("00000000")));
     }
 }

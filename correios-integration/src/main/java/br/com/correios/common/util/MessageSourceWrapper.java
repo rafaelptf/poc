@@ -1,7 +1,7 @@
 package br.com.correios.common.util;
 
 import br.com.correios.common.constants.MessageKey;
-import br.com.correios.common.constants.WsErrors;
+import br.com.correios.common.constants.WsResponseCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -13,24 +13,20 @@ import java.util.Locale;
  * Created by rpeixoto on 03/08/15.
  */
 @Component
-public class MessageHelper {
+public class MessageSourceWrapper {
 
     @Autowired
     private MessageSource messageSource;
 
-    public String getWsErrorMessage(WsErrors wsErrors) {
-        return getWsErrorMessage(wsErrors, null);
+    public String getWsResponseMessage(WsResponseCode wsResponseCode) {
+        return getWsResponseMessage(wsResponseCode, null);
     }
 
-    public String getWsErrorMessage(WsErrors wsErrors, Object... args) {
-        return getMessage(wsErrors.getMessageKey(), args);
+    public String getWsResponseMessage(WsResponseCode wsResponseCode, Object... args) {
+        return getMessage(wsResponseCode.getMessageKey(), args);
     }
 
-    public String getMessage(MessageKey messageKey) {
-        return getMessage(messageKey, null);
-    }
-
-    public String getMessage(MessageKey messageKey, Object[] args) {
+    private String getMessage(MessageKey messageKey, Object[] args) {
         final Locale locale = LocaleContextHolder.getLocale();
         return messageSource.getMessage(messageKey.getMessageKey(), args, locale);
     }

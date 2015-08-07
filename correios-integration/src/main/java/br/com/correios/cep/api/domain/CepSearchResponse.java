@@ -1,36 +1,26 @@
 package br.com.correios.cep.api.domain;
 
+import br.com.correios.common.json.BaseResponse;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Created by rpeixoto on 02/08/15.
  */
-public class CepSearchResponse {
+public class CepSearchResponse extends BaseResponse {
 
-    private final boolean cepFound;
-    private final String searchResult;
     private final String cep;
     private final String street;
     private final String district;
     private final String city;
     private final String state;
 
-    public CepSearchResponse(boolean cepFound, String searchResult, String cep, String street, String district, String city, String state) {
-        this.cepFound = cepFound;
-        this.searchResult = searchResult;
+    public CepSearchResponse(Long code, String message, String cep, String street, String district, String city, String state) {
+        super(code, message);
         this.cep = cep;
         this.street = street;
         this.district = district;
         this.city = city;
         this.state = state;
-    }
-
-    public boolean isCepFound() {
-        return cepFound;
-    }
-
-    public String getSearchResult() {
-        return searchResult;
     }
 
     public String getCep() {
@@ -56,8 +46,7 @@ public class CepSearchResponse {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("cepFound", cepFound)
-                .append("searchResult", searchResult)
+                .appendSuper(super.toString())
                 .append("cep", cep)
                 .append("street", street)
                 .append("district", district)

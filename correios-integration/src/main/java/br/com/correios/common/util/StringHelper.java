@@ -33,19 +33,4 @@ public class StringHelper {
         return returnStr.toString();
     }
 
-    public String rightReplace(String str, int size, char padChar) {
-
-        int strLength = str.length();
-        if (strLength < size) {
-            return str;
-        }
-
-        int endSubstringIndex = strLength - size;
-        final String substring = str.substring(0, endSubstringIndex);
-        final String rightStr = StringUtils.repeat(padChar, size);
-
-        final StringBuilder newStr = new StringBuilder(substring)
-                .append(rightStr);
-        return newStr.toString();
-    }
 }

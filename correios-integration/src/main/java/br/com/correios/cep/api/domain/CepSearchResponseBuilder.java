@@ -1,8 +1,11 @@
 package br.com.correios.cep.api.domain;
 
+import br.com.correios.common.constants.WsResponseCode;
+
 public class CepSearchResponseBuilder {
-    private boolean cepFound;
-    private String searchResult;
+
+    private Long code;
+    private String message;
     private String cep;
     private String street;
     private String district;
@@ -11,23 +14,23 @@ public class CepSearchResponseBuilder {
 
     public static CepSearchResponseBuilder cepNotFound(String cepNotFoundMessage) {
         return new CepSearchResponseBuilder()
-                .setCepFound(false)
-                .setSearchResult(cepNotFoundMessage);
+                .setCode(WsResponseCode.CEP_NOT_FOUND.getCode())
+                .setMessage(cepNotFoundMessage);
     }
 
     public static CepSearchResponseBuilder cepFound(String cepFoundMessage) {
         return new CepSearchResponseBuilder()
-                .setCepFound(true)
-                .setSearchResult(cepFoundMessage);
+                .setCode(WsResponseCode.CEP_FOUND.getCode())
+                .setMessage(cepFoundMessage);
     }
 
-    public CepSearchResponseBuilder setCepFound(boolean cepFound) {
-        this.cepFound = cepFound;
+    public CepSearchResponseBuilder setCode(Long code) {
+        this.code = code;
         return this;
     }
 
-    public CepSearchResponseBuilder setSearchResult(String searchResult) {
-        this.searchResult = searchResult;
+    public CepSearchResponseBuilder setMessage(String message) {
+        this.message = message;
         return this;
     }
 
@@ -57,6 +60,6 @@ public class CepSearchResponseBuilder {
     }
 
     public CepSearchResponse build() {
-        return new CepSearchResponse(cepFound, searchResult, cep, street, district, city, state);
+        return new CepSearchResponse(code, message, cep, street, district, city, state);
     }
 }

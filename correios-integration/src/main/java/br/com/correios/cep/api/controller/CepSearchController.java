@@ -7,9 +7,8 @@ import br.com.correios.cep.api.exception.CepNotFoundException;
 import br.com.correios.cep.api.service.CepSearchService;
 import br.com.correios.cep.api.service.CepSearchServiceImpl;
 import br.com.correios.cep.integration.domain.CepSearchDetails;
-import br.com.correios.common.constants.MessageKey;
-import br.com.correios.common.constants.WsErrors;
-import br.com.correios.common.util.MessageHelper;
+import br.com.correios.common.constants.WsResponseCode;
+import br.com.correios.common.util.MessageSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,7 @@ public class CepSearchController {
     private CepSearchService cepSearchService;
 
     @Autowired
-    private MessageHelper messageHelper;
+    private MessageSourceWrapper messageSourceWrapper;
 
     @RequestMapping(value = "/cep/{cep}", method = RequestMethod.GET)
     public CepSearchResponse findCepDetailsByPathVariable(@PathVariable("cep") @Valid final String cep,
@@ -46,24 +45,28 @@ public class CepSearchController {
     }
 
     protected CepSearchResponse findCepDetails(String cep, HttpServletResponse response) {
-        try {
-            final CepSearchDetails cepSearchDetails = cepSearchService.findCepDetails(cep);
+        final CepSearchDetails cepSearchDetails = cepSearchService.findCepDetails(cep);
 
-            final String cepFoundMessage = messageHelper.getMessage(MessageKey.CEP_FOUND);
-            return CepSearchResponseBuilder
-                    .cepFound(cepFoundMessage)
-                    .setCep(cepSearchDetails.getCep())
-                    .setStreet(cepSearchDetails.getStreet())
-                    .setDistrict(cepSearchDetails.getDistrict())
-                    .setCity(cepSearchDetails.getCity())
-                    .setState(cepSearchDetails.getState())
-                    .build();
+        final String cepFoundMessage = messageSourceWrapper.getWsResponseMessage(WsResponseCode.CEP_FOUND);
+        return CepSearchResponseBuilder
+                .cepFound(cepFoundMessage)
+                .setCep(cepSearchDetails.getCep())
+                .setStreet(cepSearchDetails.getStreet())
+                .setDistrict(cepSearchDetails.getDistrict())
+                .setCity(cepSearchDetails.getCity())
+                .setState(cepSearchDetails.getState())
+                .build();
 
-        } catch (CepNotFoundException e) {
-            logger.debug("CEP nao encontrado. cep={}", cep);
-            response.setStatus(HttpStatus.NOT_FOUND.value());
-            final String cepNotFoundMessage = messageHelper.getWsErrorMessage(WsErrors.CEP_NOT_FOUND);
-            return CepSearchResponseBuilder.cepNotFound(cepNotFoundMessage).build();
-        }
+    }
+
+
+    @ExceptionHandler(CepNotFoundException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public CepSearchResponse cepNotFoundHandler(CepNotFoundException ex) {
+        logger.debug("CEP nao encontrado. cep={}", ex.getCep());
+
+        final String cepNotFoundMessage = messageSourceWrapper.getWsResponseMessage(WsResponseCode.CEP_NOT_FOUND);
+        return CepSearchResponseBuilder.cepNotFound(cepNotFoundMessage).build();
     }
 }

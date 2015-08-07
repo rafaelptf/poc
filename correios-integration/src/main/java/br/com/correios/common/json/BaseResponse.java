@@ -5,17 +5,17 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 /**
  * Created by rpeixoto on 03/08/15.
  */
-public class RequestError {
+public class BaseResponse {
 
-    private final String code;
+    private final Long code;
     private final String message;
 
-    public RequestError(String code, String message) {
+    public BaseResponse(Long code, String message) {
         this.code = code;
         this.message = message;
     }
 
-    public String getCode() {
+    public Long getCode() {
         return code;
     }
 
