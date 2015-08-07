@@ -1,4 +1,4 @@
-package br.com.correios.common.json;
+package br.com.correios.common.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 

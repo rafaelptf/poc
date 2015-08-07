@@ -1,6 +1,6 @@
 package br.com.correios.cep.api.domain;
 
-import br.com.correios.common.json.BaseResponse;
+import br.com.correios.common.domain.BaseResponse;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**

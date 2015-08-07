@@ -1,9 +1,9 @@
 package br.com.correios.common.handler;
 
 import br.com.correios.common.constants.WsResponseCode;
-import br.com.correios.common.json.BaseResponse;
-import br.com.correios.common.json.FieldValidationError;
-import br.com.correios.common.json.RequestValidationError;
+import br.com.correios.common.domain.BaseResponse;
+import br.com.correios.common.domain.FieldValidationError;
+import br.com.correios.common.domain.RequestValidationError;
 import br.com.correios.common.util.MessageSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
