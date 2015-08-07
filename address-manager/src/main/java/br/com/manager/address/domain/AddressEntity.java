@@ -17,6 +17,7 @@ public class AddressEntity {
     private String district;
     private String city;
     private String state;
+    private boolean active;
 
     @Id
     @GeneratedValue
@@ -90,5 +91,15 @@ public class AddressEntity {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    @Column(name = "flg_active", nullable = false)
+    public boolean isActive() {
+        return active;
+    }
+
+    public AddressEntity setActive(boolean active) {
+        this.active = active;
+        return this;
     }
 }

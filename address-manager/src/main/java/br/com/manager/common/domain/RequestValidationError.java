@@ -1,15 +1,15 @@
-package br.com.manager.common.json;
+package br.com.manager.common.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Created by rpeixoto on 03/08/15.
  */
-public class RequestValidationError extends RequestError{
+public class RequestValidationError extends BaseResponse {
 
-    private FieldValidationError [] errors;
+    private FieldValidationError[] errors;
 
-    public RequestValidationError(String code, String message, FieldValidationError[] errors) {
+    public RequestValidationError(Long code, String message, FieldValidationError[] errors) {
         super(code, message);
         this.errors = errors;
     }

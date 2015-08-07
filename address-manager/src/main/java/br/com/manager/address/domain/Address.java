@@ -1,6 +1,8 @@
 package br.com.manager.address.domain;
 
+import br.com.manager.common.domain.WsResponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
@@ -10,7 +12,7 @@ import javax.validation.constraints.Pattern;
  * Created by rpeixoto on 02/08/15.
  */
 @JsonIgnoreProperties
-public class Address {
+public class Address extends WsResponse{
 
     private String cep;
     private String street;
@@ -40,7 +42,7 @@ public class Address {
     }
 
     public void setCep(String cep) {
-        this.cep = cep;
+        this.cep = StringUtils.remove(cep, "-");
     }
 
     @NotBlank

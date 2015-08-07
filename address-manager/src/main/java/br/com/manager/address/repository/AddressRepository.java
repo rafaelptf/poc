@@ -14,6 +14,14 @@ import java.util.List;
 @Repository
 public interface AddressRepository extends CrudRepository<AddressEntity, Long> {
 
-    @Query("Select address From Address address")
-    List<AddressEntity> findAll(Pageable pageable);
+    @Query("Select address " +
+            "From Address address " +
+            "Where address.active = true")
+    List<AddressEntity> findAllActive(Pageable pageable);
+
+    @Query("Select address " +
+            "From Address address " +
+            "Where address.id = (?1) " +
+            "and address.active = true ")
+    AddressEntity findActive(Long addressId);
 }

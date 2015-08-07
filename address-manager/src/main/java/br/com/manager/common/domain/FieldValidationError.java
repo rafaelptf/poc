@@ -1,4 +1,4 @@
-package br.com.manager.common.json;
+package br.com.manager.common.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 

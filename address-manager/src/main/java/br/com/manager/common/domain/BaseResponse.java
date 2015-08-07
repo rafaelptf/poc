@@ -1,4 +1,4 @@
-package br.com.correios.common.domain;
+package br.com.manager.common.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -13,6 +13,10 @@ public class BaseResponse {
     public BaseResponse(Long code, String message) {
         this.code = code;
         this.message = message;
+    }
+
+    public BaseResponse(BaseResponse baseResponse) {
+        this(baseResponse.getCode(), baseResponse.getMessage());
     }
 
     public Long getCode() {

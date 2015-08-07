@@ -12,9 +12,13 @@ import java.util.List;
  */
 public interface AddressService {
 
-    CompleteAddress createNewAddress(AddressCreationRequest addressCreationRequest);
+    CompleteAddress createNewAddress(Address address);
 
     Address findById(Long addressId);
 
     List<CompleteAddress> findAll();
+
+    boolean removeAddress(Long addressId);
+
+    boolean updateAddress(Long addressId, Address address);
 }

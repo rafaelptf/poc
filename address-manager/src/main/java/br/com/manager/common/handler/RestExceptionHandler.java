@@ -1,10 +1,9 @@
 package br.com.manager.common.handler;
 
-import br.com.manager.common.constants.WsErrors;
-import br.com.manager.common.json.FieldValidationError;
-import br.com.manager.common.json.RequestError;
-import br.com.manager.common.json.RequestValidationError;
-import br.com.manager.common.util.MessageHelper;
+import br.com.manager.common.constants.WsResponseCode;
+import br.com.manager.common.domain.FieldValidationError;
+import br.com.manager.common.domain.WsResponse;
+import br.com.manager.common.util.WsResponseBuilder;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +15,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -36,55 +36,56 @@ public class RestExceptionHandler {
     private final static Logger logger = LoggerFactory.getLogger(RestExceptionHandler.class);
 
     @Autowired
-    private MessageHelper messageHelper;
+    private WsResponseBuilder wsResponseBuilder;
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(value = HttpStatus.METHOD_NOT_ALLOWED)
     @ResponseBody
-    public RequestError requestMethodNotSupported(HttpServletRequest req, HttpRequestMethodNotSupportedException ex) {
-        final String errorMessage = messageHelper.getWsErrorMessage(WsErrors.HTTP_METHOD_NOT_ALLOWED_ERROR, ex.getMethod());
-        final RequestError requestError = new RequestError(WsErrors.HTTP_METHOD_NOT_ALLOWED_ERROR.getErrorCode(), errorMessage);
-        return requestError;
+    public WsResponse requestMethodNotSupported(HttpServletRequest req, HttpRequestMethodNotSupportedException ex) {
+        return wsResponseBuilder.getNoContetyWsResponse(
+                WsResponseCode.HTTP_METHOD_NOT_ALLOWED_ERROR,
+                ex.getMethod());
     }
 
     @ExceptionHandler(value = {Exception.class, RuntimeException.class})
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public RequestError requestHandlingGenericException(HttpServletRequest req, Exception ex) {
+    public WsResponse requestHandlingGenericException(HttpServletRequest req, Exception ex) {
         logger.error("Erro ao processar requisicao. url={}", req.getRequestURI(), ex);
-
-        final String errorMessage = messageHelper.getWsErrorMessage(WsErrors.GENERIC_ERROR);
-        final RequestError requestError = new RequestError(WsErrors.GENERIC_ERROR.getErrorCode(), errorMessage);
-        return requestError;
+        return wsResponseBuilder.getNoContetyWsResponse(WsResponseCode.GENERIC_ERROR);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public RequestValidationError requestHandlingMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    public WsResponse requestHandlingMethodArgumentNotValidException(HttpServletRequest req, MethodArgumentNotValidException ex) {
         final FieldValidationError[] fieldValidationErrors = getFieldValidationErrors(ex);
-        final String errorMessage = messageHelper.getWsErrorMessage(WsErrors.REQUEST_VALIDATION_ERROR);
-        final RequestValidationError requestValidationError = new RequestValidationError(WsErrors.REQUEST_VALIDATION_ERROR.getErrorCode(), errorMessage, fieldValidationErrors);
-        return requestValidationError;
+        return wsResponseBuilder.getFieldValidationErrorWsResponse(WsResponseCode.REQUEST_VALIDATION_ERROR, fieldValidationErrors);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public RequestValidationError requestHandlingMethodArgumentNotValidException(HttpMessageNotReadableException ex) {
-        final String errorMessage = messageHelper.getWsErrorMessage(WsErrors.REQUEST_VALIDATION_ERROR);
-
+    public WsResponse requestHandlingHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         final Throwable exCause = ex.getCause();
-        if(exCause instanceof InvalidFormatException) {
+        if (exCause instanceof InvalidFormatException) {
             final InvalidFormatException invalidFormatException = (InvalidFormatException) exCause;
             final FieldValidationError[] fieldValidationErrors = getFieldBinding(invalidFormatException);
-            return new RequestValidationError(WsErrors.REQUEST_VALIDATION_ERROR.getErrorCode(), errorMessage, fieldValidationErrors);
+            return wsResponseBuilder.getFieldValidationErrorWsResponse(WsResponseCode.REQUEST_VALIDATION_ERROR, fieldValidationErrors);
         }
 
-        //Lanca excecao generica pois nao conseguiu ler a requisicao
-        final RequestValidationError requestValidationError = new RequestValidationError(WsErrors.REQUEST_VALIDATION_ERROR.getErrorCode(), errorMessage, null);
-        return requestValidationError;
+        //Retorna erro mais generica pois nao conseguiu ler a requisicao
+        return wsResponseBuilder.getFieldValidationErrorWsResponse(WsResponseCode.REQUEST_VALIDATION_ERROR, null);
     }
+
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    @ResponseStatus(value = HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    @ResponseBody
+    public WsResponse requestHandlingHttpMediaTypeException(HttpMediaTypeNotSupportedException ex) {
+        return wsResponseBuilder.getNoContetyWsResponse(WsResponseCode.UNSUPPORTED_MEDIA_TYPE, ex.getContentType());
+    }
+
 
     private FieldValidationError[] getFieldBinding(InvalidFormatException invalidFormatException) {
         final List<FieldValidationError> fieldValidationsErrors = new ArrayList<FieldValidationError>();
@@ -92,20 +93,20 @@ public class RestExceptionHandler {
 
         final JsonMappingException.Reference reference;
         //Nao tem como obter o nome da variavel que deu problema no Json, retorna somente com os valores
-        if(path.isEmpty()) {
+        if (path.isEmpty()) {
             final FieldValidationError fieldValidationError = new FieldValidationError(StringUtils.EMPTY, String.valueOf(invalidFormatException.getValue()), invalidFormatException.getOriginalMessage());
-            return new FieldValidationError[] {fieldValidationError};
+            return new FieldValidationError[]{fieldValidationError};
         }
 
         //Tem como obter o nome da variavel que deu problema no Json
-        if(path.size() > 1) {
+        if (path.size() > 1) {
             reference = path.get(path.size() - 1);
         } else {
             reference = path.get(0);
         }
 
         final FieldValidationError fieldValidationError = new FieldValidationError(reference.getFieldName(), String.valueOf(invalidFormatException.getValue()), invalidFormatException.getOriginalMessage());
-        return new FieldValidationError[] {fieldValidationError};
+        return new FieldValidationError[]{fieldValidationError};
     }
 
     private FieldValidationError[] getFieldValidationErrors(MethodArgumentNotValidException ex) {

@@ -1,24 +1,18 @@
 package br.com.manager.address.domain;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import br.com.manager.common.domain.WsResponse;
 
 /**
  * Created by rpeixoto on 02/08/15.
  */
-public class AddressCreationResponse {
+public class AddressCreationResponse extends WsResponse{
 
-    private final String status;
     private final String cep;
     private final Long addressId;
 
-    public AddressCreationResponse(String status, String cep, Long addressId) {
-        this.status = status;
+    public AddressCreationResponse(String cep, Long addressId) {
         this.cep = cep;
         this.addressId = addressId;
-    }
-
-    public String getStatus() {
-        return status;
     }
 
     public String getCep() {
