@@ -106,7 +106,7 @@ public class AddressServiceImplTest {
         when(addressRepository.findActive(addressId)).thenReturn(null);
         when(addressConverter.convertEntityToDomain(addressEntity)).thenReturn(completeAddress);
 
-        final CompleteAddress returnCompleteAddress = addressService.findById(addressId);
+        addressService.findById(addressId);
     }
 
 }
