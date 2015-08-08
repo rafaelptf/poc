@@ -1,6 +1,8 @@
 package br.com.correios.cep.api.domain;
 
 import br.com.correios.common.domain.WsResponse;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
@@ -52,5 +54,33 @@ public class CepSearchResponse extends WsResponse{
                 .append("city", city)
                 .append("state", state)
                 .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CepSearchResponse that = (CepSearchResponse) o;
+
+        return new EqualsBuilder()
+                .append(cep, that.cep)
+                .append(street, that.street)
+                .append(district, that.district)
+                .append(city, that.city)
+                .append(state, that.state)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(cep)
+                .append(street)
+                .append(district)
+                .append(city)
+                .append(state)
+                .toHashCode();
     }
 }
