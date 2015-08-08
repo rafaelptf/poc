@@ -1,5 +1,9 @@
 package br.com.manager.address.domain;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import javax.persistence.*;
 
 /**
@@ -101,5 +105,56 @@ public class AddressEntity {
     public AddressEntity setActive(boolean active) {
         this.active = active;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("cep", cep)
+                .append("street", street)
+                .append("number", number)
+                .append("complement", complement)
+                .append("district", district)
+                .append("city", city)
+                .append("state", state)
+                .append("active", active)
+                .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AddressEntity that = (AddressEntity) o;
+
+        return new EqualsBuilder()
+                .append(active, that.active)
+                .append(id, that.id)
+                .append(cep, that.cep)
+                .append(street, that.street)
+                .append(number, that.number)
+                .append(complement, that.complement)
+                .append(district, that.district)
+                .append(city, that.city)
+                .append(state, that.state)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .append(cep)
+                .append(street)
+                .append(number)
+                .append(complement)
+                .append(district)
+                .append(city)
+                .append(state)
+                .append(active)
+                .toHashCode();
     }
 }

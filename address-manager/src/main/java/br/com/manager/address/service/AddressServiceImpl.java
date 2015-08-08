@@ -76,9 +76,11 @@ public class AddressServiceImpl implements AddressService {
     public CompleteAddress findById(Long addressId) {
         logger.debug("Buscando endereco pelo id. addressId={}", addressId);
 
+        //Obtem o endereco ativo
         final AddressEntity addressEntity = findActiveAddress(addressId);
-        final CompleteAddress address = addressConverter.convertEntityToDomain(addressEntity);
 
+        // Converte e retorna
+        final CompleteAddress address = addressConverter.convertEntityToDomain(addressEntity);
         logger.debug("Endereco encontrado. addressId={} completeAddress={}", addressId, address);
         return address;
     }
@@ -88,12 +90,15 @@ public class AddressServiceImpl implements AddressService {
     public CompleteAddressList findAll(Integer page) {
         logger.debug("Buscando todos enderecos. page={}", page);
 
+        // Pagina a busca de enderecos
         final Pageable pageable = getSearchPage(page);
         final Slice<AddressEntity> pageSlice = addressRepository.findAllActive(pageable);
 
+        //Obtem a pagina atual e verifica e converte
         final List<AddressEntity> addresses = pageSlice.getContent();
         final List<Address> completeAddresses = addressConverter.convertEntityToDomain(addresses);
 
+        //Adiciona ao objeto de retorno
         final CompleteAddressList completeAddressList = new CompleteAddressList(completeAddresses, pageSlice.hasNext());
         logger.debug("Enderecos encontrados. completeAddressListSize={}", completeAddressList.getCompleteAddresses().size());
         return completeAddressList;
@@ -102,9 +107,13 @@ public class AddressServiceImpl implements AddressService {
     @Override
     @Transactional(rollbackFor = Exception.class, noRollbackFor = AddressNotFoundException.class)
     public boolean removeAddress(Long addressId) {
+        //Obtem o endereco ativo
         final AddressEntity addressEntity = findActiveAddress(addressId);
 
+        //Desativa ele
         addressEntity.setActive(false);
+
+        //Atualiza ele no banco de dados e retorna que foi atualizado com sucesso
         addressRepository.save(addressEntity);
         return true;
     }
@@ -112,6 +121,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     @Transactional(rollbackFor = Exception.class, noRollbackFor = AddressNotFoundException.class)
     public boolean updateAddress(Long addressId, Address address) {
+        //Obtem o endereco ativo
         final AddressEntity addressEntity = findActiveAddress(addressId);
 
         //Valida se o novo CEP é válido
@@ -128,10 +138,18 @@ public class AddressServiceImpl implements AddressService {
         addressEntity.setDistrict(address.getDistrict());
         addressEntity.setCity(address.getCity());
         addressEntity.setState(address.getState());
+
+        //Atualiza o banco de dados e retorna
         addressRepository.save(addressEntity);
         return true;
     }
 
+    /**
+     * Busca o endereco ativo no banco de dados, caso nao encontre, retorna excecao indicado o erro
+     *
+     * @param addressId
+     * @return
+     */
     private AddressEntity findActiveAddress(Long addressId) {
         final AddressEntity activeAddress = addressRepository.findActive(addressId);
         if (activeAddress == null) {
@@ -141,6 +159,12 @@ public class AddressServiceImpl implements AddressService {
         return activeAddress;
     }
 
+    /**
+     * Obtem o objeto referente a paginacao
+     *
+     * @param page
+     * @return
+     */
     private Pageable getSearchPage(Integer page) {
         final int searchPage;
         if (page == null) {

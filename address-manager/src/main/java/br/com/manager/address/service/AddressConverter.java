@@ -14,7 +14,6 @@ import java.util.List;
 @Component
 public class AddressConverter implements Converter<AddressEntity, Address>{
 
-
     @Override
     public CompleteAddress convertEntityToDomain(AddressEntity addressEntity) {
         final CompleteAddress address = new CompleteAddress();
@@ -28,7 +27,6 @@ public class AddressConverter implements Converter<AddressEntity, Address>{
         address.setState(addressEntity.getState());
         return address;
     }
-
 
     @Override
     public List<Address> convertEntityToDomain(List<AddressEntity> addresses) {
