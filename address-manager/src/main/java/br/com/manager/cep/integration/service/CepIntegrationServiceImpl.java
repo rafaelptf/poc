@@ -29,20 +29,34 @@ public class CepIntegrationServiceImpl implements CepIntegrationService {
 
     @Override
     public boolean isValidCep(String cep) {
-
+        logger.debug("Validando CEP. cep={}", cep);
         final String plainCepRequestText = getPlainCepText(cep);
 
-        final RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
-            @Override
-            protected boolean hasError(HttpStatus statusCode) {
-                if (statusCode == HttpStatus.NOT_FOUND || statusCode == HttpStatus.BAD_REQUEST) {
-                    return false;
-                }
+        //Realiza o post para o servico de CEP
+        final CepSearchResponse cepSearchResponse = postForCepSearchResponse(plainCepRequestText);
 
-                return super.hasError(statusCode);
-            }
-        });
+        // Servico retornou sucesso, e o CEP é igual ao que tentou inserir
+        final Long responseCode = cepSearchResponse.getCode();
+        final String responseCep = cepSearchResponse.getCep();
+        if (SUCCESS_CEP_SEARCH_STATUS.equals(responseCode) && responseCep.equals(plainCepRequestText)) {
+            logger.debug("Cep valido. cep={}", cep);
+            return true;
+        }
+
+        logger.debug("Cep invalido. cep={}", cep);
+        return false;
+    }
+
+    /**
+     * Realiza o post para o servico de busca de cep
+     *
+     * @param plainCepRequestText
+     * @return
+     */
+    private CepSearchResponse postForCepSearchResponse(String plainCepRequestText) {
+
+        //Obtem restTemplate customizado
+        final RestTemplate restTemplate = getRestTemplate();
 
         final CepSearchResponse cepSearchResponse;
         try {
@@ -56,15 +70,27 @@ public class CepIntegrationServiceImpl implements CepIntegrationService {
             }
             throw e;
         }
+        return cepSearchResponse;
+    }
 
-        // Servico retornou sucesso, e o CEP é igual ao que tentou inserir
-        final Long responseCode = cepSearchResponse.getCode();
-        final String responseCep = cepSearchResponse.getCep();
-        if (SUCCESS_CEP_SEARCH_STATUS.equals(responseCode) && responseCep.equals(plainCepRequestText)) {
-            return true;
-        }
+    /**
+     * Obtem RestTemplate customizado que nao da exception em caso de HTTP 404 e 400, fazendo assim o parse do responseBody.
+     *
+     * @return
+     */
+    private RestTemplate getRestTemplate() {
+        final RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
+            @Override
+            protected boolean hasError(HttpStatus statusCode) {
+                if (statusCode == HttpStatus.NOT_FOUND || statusCode == HttpStatus.BAD_REQUEST) {
+                    return false;
+                }
 
-        return false;
+                return super.hasError(statusCode);
+            }
+        });
+        return restTemplate;
     }
 
     /**

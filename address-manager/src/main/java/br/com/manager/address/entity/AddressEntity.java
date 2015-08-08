@@ -1,4 +1,4 @@
-package br.com.manager.address.domain;
+package br.com.manager.address.entity;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;

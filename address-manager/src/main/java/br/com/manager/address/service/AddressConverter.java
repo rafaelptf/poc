@@ -1,7 +1,7 @@
 package br.com.manager.address.service;
 
 import br.com.manager.address.domain.Address;
-import br.com.manager.address.domain.AddressEntity;
+import br.com.manager.address.entity.AddressEntity;
 import br.com.manager.address.domain.CompleteAddress;
 import org.springframework.stereotype.Component;
 

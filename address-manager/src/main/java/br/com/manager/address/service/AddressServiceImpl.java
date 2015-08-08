@@ -1,13 +1,15 @@
 package br.com.manager.address.service;
 
 import br.com.manager.address.domain.Address;
-import br.com.manager.address.domain.AddressEntity;
+import br.com.manager.address.domain.UpdateAddress;
+import br.com.manager.address.entity.AddressEntity;
 import br.com.manager.address.domain.CompleteAddress;
 import br.com.manager.address.domain.CompleteAddressList;
 import br.com.manager.address.exception.AddressNotFoundException;
 import br.com.manager.address.exception.InvalidCepException;
 import br.com.manager.address.repository.AddressRepository;
 import br.com.manager.cep.integration.service.CepIntegrationService;
+import br.com.manager.common.util.FunctionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,6 +109,8 @@ public class AddressServiceImpl implements AddressService {
     @Override
     @Transactional(rollbackFor = Exception.class, noRollbackFor = AddressNotFoundException.class)
     public boolean removeAddress(Long addressId) {
+        logger.debug("Removendo endereco. addressId={}", addressId);
+
         //Obtem o endereco ativo
         final AddressEntity addressEntity = findActiveAddress(addressId);
 
@@ -115,32 +119,40 @@ public class AddressServiceImpl implements AddressService {
 
         //Atualiza ele no banco de dados e retorna que foi atualizado com sucesso
         addressRepository.save(addressEntity);
+
+        logger.debug("Endereco removido com sucesso. addressId={}", addressId);
         return true;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class, noRollbackFor = AddressNotFoundException.class)
-    public boolean updateAddress(Long addressId, Address address) {
+    public boolean updateAddress(Long addressId, UpdateAddress address) {
+        logger.debug("Atualizando endereco. addressId={} address={}", addressId, address);
+
         //Obtem o endereco ativo
         final AddressEntity addressEntity = findActiveAddress(addressId);
 
-        //Valida se o novo CEP é válido
-        final boolean isSameCep = StringUtils.equalsIgnoreCase(addressEntity.getCep(), address.getCep());
-        if (!isSameCep) {
-            validateCep(address.getCep());
+        //Valida se o novo CEP é válido, caso tenha recebido cep
+        if(StringUtils.isNotEmpty(address.getCep())) {
+            final boolean isSameCep = StringUtils.equalsIgnoreCase(addressEntity.getCep(), address.getCep());
+            if (!isSameCep) {
+                validateCep(address.getCep());
+            }
         }
 
-        //Atualiza os campos do endereço
-        addressEntity.setCep(address.getCep());
-        addressEntity.setStreet(address.getStreet());
-        addressEntity.setNumber(address.getNumber());
-        addressEntity.setComplement(address.getComplement());
-        addressEntity.setDistrict(address.getDistrict());
-        addressEntity.setCity(address.getCity());
-        addressEntity.setState(address.getState());
+        //Atualiza somente os campos do endereco que vieram preenchidos
+        FunctionUtil.updateStringIfNotEmpty(address::getCep, addressEntity::setCep);
+        FunctionUtil.updateStringIfNotEmpty(address::getStreet, addressEntity::setStreet);
+        FunctionUtil.updateIntegerIfNotNull(address::getNumber, addressEntity::setNumber);
+        FunctionUtil.updateStringIfNotEmpty(address::getComplement, addressEntity::setComplement);
+        FunctionUtil.updateStringIfNotEmpty(address::getDistrict, addressEntity::setDistrict);
+        FunctionUtil.updateStringIfNotEmpty(address::getCity, addressEntity::setCity);
+        FunctionUtil.updateStringIfNotEmpty(address::getState, addressEntity::setState);
 
         //Atualiza o banco de dados e retorna
         addressRepository.save(addressEntity);
+
+        logger.debug("Endereco atualizado com sucesso. addressId={}", addressId);
         return true;
     }
 

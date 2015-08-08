@@ -3,6 +3,7 @@ package br.com.manager.address.service;
 import br.com.manager.address.domain.Address;
 import br.com.manager.address.domain.CompleteAddress;
 import br.com.manager.address.domain.CompleteAddressList;
+import br.com.manager.address.domain.UpdateAddress;
 
 /**
  * Created by rpeixoto on 03/08/15.
@@ -45,16 +46,18 @@ public interface AddressService {
     boolean removeAddress(Long addressId);
 
     /**
-     * Atualiza um endereco.
+     * Atualiza um endereco
      *
      * Regras:
-     *  So atualiza com sucesso caso o CEP novo seja válido
-     *  Se nao alterou o CEP, nao valida novamente o mesmo, só valida o CEP se houve tentativa de alteraçao
+     *  So atualiza os campos que vieram preenchidos na requisicao
+     *  So atualiza com sucesso caso o novo CEP seja válido
+     *  Se nao alterou o CEP, nao valida novamente o mesmo,
+     *  só valida o CEP se houve tentativa de alteraçao
      *
      * @param addressId Id do endereco a ser alterado
      * @param address dados do endereço para alteração
      * @return true, alterado com sucesso
      *         false, caso contrario
      */
-    boolean updateAddress(Long addressId, Address address);
+    boolean updateAddress(Long addressId, UpdateAddress address);
 }

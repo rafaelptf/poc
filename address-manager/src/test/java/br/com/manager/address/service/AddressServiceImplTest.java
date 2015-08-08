@@ -1,8 +1,9 @@
 package br.com.manager.address.service;
 
 import br.com.manager.address.domain.Address;
-import br.com.manager.address.domain.AddressEntity;
 import br.com.manager.address.domain.CompleteAddress;
+import br.com.manager.address.domain.UpdateAddress;
+import br.com.manager.address.entity.AddressEntity;
 import br.com.manager.address.exception.AddressNotFoundException;
 import br.com.manager.address.exception.InvalidCepException;
 import br.com.manager.address.repository.AddressRepository;
@@ -139,55 +140,88 @@ public class AddressServiceImplTest {
     public void updateAddressdWithCorrectAddressIdWithoutUpdatingCEP() throws Exception {
         final long addressId = 1l;
         final String cep = "040040050";
-        final String street = "FARIA LIMA";
-        final int number = 11;
-        final String district = "JARDINS";
-        final String city = "SAO PAULO";
-        final String state = "SP";
+        final String newStreet = "FARIA LIMA";
+        final int newNumber = 11;
+        final String newDistrict = "JARDINS";
+        final String newCity = "SAO PAULO";
+        final String newState = "SP";
 
-        final AddressEntity addressEntity = buildAddressEntity(cep);
-        final Address address = buildAddress(cep, street, number, district, city, state);
+        final AddressEntity addressEntity = buildAddressEntity(cep, "RUA", 99, "BAIRRO", "CIDADE", "ESTADO");
+        final UpdateAddress updateAddress = buildUpdateAddress(cep, newStreet, newNumber, newDistrict, newCity, newState);
 
         when(addressRepository.findActive(addressId)).thenReturn(addressEntity);
         when(addressRepository.save(addressEntity)).thenReturn(addressEntity);
 
-        final boolean isAddressupdated = addressService.updateAddress(addressId, address);
+        final boolean isAddressupdated = addressService.updateAddress(addressId, updateAddress);
 
         assertThat(isAddressupdated, is(equalTo(true)));
         assertThat(addressEntity.getCep(), is(equalTo(cep)));
-        assertThat(addressEntity.getStreet(), is(equalTo(street)));
-        assertThat(addressEntity.getNumber(), is(equalTo(number)));
-        assertThat(addressEntity.getDistrict(), is(equalTo(district)));
-        assertThat(addressEntity.getCity(), is(equalTo(city)));
-        assertThat(addressEntity.getState(), is(equalTo(state)));
+        assertThat(addressEntity.getStreet(), is(equalTo(newStreet)));
+        assertThat(addressEntity.getNumber(), is(equalTo(newNumber)));
+        assertThat(addressEntity.getDistrict(), is(equalTo(newDistrict)));
+        assertThat(addressEntity.getCity(), is(equalTo(newCity)));
+        assertThat(addressEntity.getState(), is(equalTo(newState)));
     }
 
     @Test
     public void updateAddressdWithCorrectAddressIdAndValidCep() throws Exception {
         final long addressId = 1l;
-        final String cep = "040040050";
-        final String street = "FARIA LIMA";
-        final int number = 11;
-        final String district = "JARDINS";
-        final String city = "SAO PAULO";
-        final String state = "SP";
+        final String newCep = "040040050";
+        final String newStreet = "FARIA LIMA";
+        final int newNumber = 11;
+        final String newDistrict = "JARDINS";
+        final String newCity = "SAO PAULO";
+        final String newState = "SP";
 
         final String entityCep = "00000000";
 
-        final AddressEntity addressEntity = buildAddressEntity(entityCep);
-        final Address address = buildAddress(cep, street, number, district, city, state);
+        final AddressEntity addressEntity = buildAddressEntity(entityCep, "RUA", 99, "BAIRRO", "CIDADE", "ESTADO");
+        final UpdateAddress updateAddress = buildUpdateAddress(newCep, newStreet, newNumber, newDistrict, newCity, newState);
 
         when(addressRepository.findActive(addressId)).thenReturn(addressEntity);
-        when(cepIntegrationService.isValidCep(cep)).thenReturn(true);
+        when(cepIntegrationService.isValidCep(newCep)).thenReturn(true);
         when(addressRepository.save(addressEntity)).thenReturn(addressEntity);
 
-        final boolean isAddressUpdated = addressService.updateAddress(addressId, address);
+        final boolean isAddressUpdated = addressService.updateAddress(addressId, updateAddress);
 
-        verify(cepIntegrationService, only()).isValidCep(cep);
+        verify(cepIntegrationService, only()).isValidCep(newCep);
         verify(addressRepository).save(addressEntity);
 
         assertThat(isAddressUpdated, is(equalTo(true)));
-        assertThat(addressEntity.getCep(), is(equalTo(cep)));
+        assertThat(addressEntity.getCep(), is(equalTo(newCep)));
+        assertThat(addressEntity.getStreet(), is(equalTo(newStreet)));
+        assertThat(addressEntity.getNumber(), is(equalTo(newNumber)));
+        assertThat(addressEntity.getDistrict(), is(equalTo(newDistrict)));
+        assertThat(addressEntity.getCity(), is(equalTo(newCity)));
+        assertThat(addressEntity.getState(), is(equalTo(newState)));
+    }
+
+    @Test
+    public void updateAddressOnlyCep() throws Exception {
+        final long addressId = 1l;
+        final String newCep = "040040050";
+        final String entityCep = "00000000";
+
+        final String street = "RUA";
+        final int number = 99;
+        final String district = "BAIRRO";
+        final String city = "CIDADE";
+        final String state = "ESTADO";
+
+        final AddressEntity addressEntity = buildAddressEntity(entityCep, street, number, district, city, state);
+        final UpdateAddress updateAddress = buildUpdateAddress(newCep, null, null, null, null, null);
+
+        when(addressRepository.findActive(addressId)).thenReturn(addressEntity);
+        when(cepIntegrationService.isValidCep(newCep)).thenReturn(true);
+        when(addressRepository.save(addressEntity)).thenReturn(addressEntity);
+
+        final boolean isAddressUpdated = addressService.updateAddress(addressId, updateAddress);
+
+        verify(cepIntegrationService, only()).isValidCep(newCep);
+        verify(addressRepository).save(addressEntity);
+
+        assertThat(isAddressUpdated, is(equalTo(true)));
+        assertThat(addressEntity.getCep(), is(equalTo(newCep)));
         assertThat(addressEntity.getStreet(), is(equalTo(street)));
         assertThat(addressEntity.getNumber(), is(equalTo(number)));
         assertThat(addressEntity.getDistrict(), is(equalTo(district)));
@@ -199,10 +233,10 @@ public class AddressServiceImplTest {
     public void updateAddressdWithCorrectAddressIdAndInvalidCep() throws Exception {
         final long addressId = 1l;
         final String cep = "040040050";
-        final String entityAddress = "00000000";
+        final String entityCep = "00000000";
 
-        final AddressEntity addressEntity = buildAddressEntity(entityAddress);
-        final Address address = buildAddress(cep, null, 0, null, null, null);
+        final AddressEntity addressEntity = buildAddressEntity(entityCep, "RUA", 99, "BAIRRO", "CIDADE", "ESTADO");
+        final UpdateAddress address = buildUpdateAddress(cep, null, 0, null, null, null);
 
         when(addressRepository.findActive(addressId)).thenReturn(addressEntity);
         when(cepIntegrationService.isValidCep(cep)).thenReturn(false);
@@ -212,14 +246,14 @@ public class AddressServiceImplTest {
         verify(cepIntegrationService, only()).isValidCep(cep);
     }
 
-    private AddressEntity buildAddressEntity(String cep) {
+    private AddressEntity buildAddressEntity(String cep, String street, int number, String district, String city, String state) {
         final AddressEntity addressEntity = new AddressEntity();
         addressEntity.setCep(cep);
-        addressEntity.setStreet("RUA");
-        addressEntity.setNumber(99);
-        addressEntity.setDistrict("BAIRRO");
-        addressEntity.setCity("CIDADE");
-        addressEntity.setState("ESTADO");
+        addressEntity.setStreet(street);
+        addressEntity.setNumber(number);
+        addressEntity.setDistrict(district);
+        addressEntity.setCity(city);
+        addressEntity.setState(state);
         return addressEntity;
     }
 
@@ -234,12 +268,23 @@ public class AddressServiceImplTest {
         return address;
     }
 
+    private UpdateAddress buildUpdateAddress(String cep, String street, Integer number, String district, String city, String state) {
+        final UpdateAddress address = new UpdateAddress();
+        address.setCep(cep);
+        address.setStreet(street);
+        address.setNumber(number);
+        address.setDistrict(district);
+        address.setCity(city);
+        address.setState(state);
+        return address;
+    }
+
     @Test(expected = AddressNotFoundException.class)
     public void updateAddressWithIncorrectAddressId() throws Exception {
         final long addressId = 5l;
         when(addressRepository.findActive(addressId)).thenReturn(null);
 
-        addressService.updateAddress(addressId, new Address());
+        addressService.updateAddress(addressId, new UpdateAddress());
     }
 
 }

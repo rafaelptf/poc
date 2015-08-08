@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -38,11 +37,10 @@ public class AddressManagerController {
     private String applicationBaseUrl;
 
     @RequestMapping(value = "/address", method = RequestMethod.POST)
-    public AddressCreationResponse createAddress(@RequestBody @Valid final AddressCreationRequest addressCreationRequest) {
-        logger.debug("Adicionando endereco. addressCreationRequest={}", addressCreationRequest);
+    public AddressCreationResponse createAddress(@RequestBody @Valid final Address address) {
 
         //Chama o servico
-        final CompleteAddress newAddress = addressService.createNewAddress(addressCreationRequest.getAddress());
+        final CompleteAddress newAddress = addressService.createNewAddress(address);
 
         //Monta a resposta
         final AddressCreationResponse addressCreationResponse = new AddressCreationResponse(newAddress.getCep(), newAddress.getId());
@@ -66,18 +64,22 @@ public class AddressManagerController {
             return null;
         }
 
-        final String nextPageUrl;
-        final int nextPageIndex = page + 1;
+        final int nextPageIndex;
+        if (page == null) {
+            nextPageIndex = 2;
+        } else {
+            nextPageIndex = page + 1;
+        }
 
-        UriComponentsBuilder nextPageUrlBuilder = UriComponentsBuilder.fromHttpUrl(applicationBaseUrl);
+
+        final UriComponentsBuilder nextPageUrlBuilder = UriComponentsBuilder.fromHttpUrl(applicationBaseUrl);
         nextPageUrlBuilder.path("/address");
         nextPageUrlBuilder.queryParam("page", nextPageIndex);
         return nextPageUrlBuilder.toUriString();
     }
 
     @RequestMapping(value = "/address/{addressId}", method = RequestMethod.GET)
-    public Address findAddress(@PathVariable("addressId") final Long addressId,
-                               final HttpServletResponse response) {
+    public Address findAddress(@PathVariable("addressId") final Long addressId) {
         final Address address = addressService.findById(addressId);
 
         //Monta a resposta
@@ -85,16 +87,14 @@ public class AddressManagerController {
     }
 
     @RequestMapping(value = "/address/{addressId}", method = RequestMethod.DELETE)
-    public WsResponse removeAddress(@PathVariable("addressId") final Long addressId,
-                                    final HttpServletResponse response) {
+    public WsResponse removeAddress(@PathVariable("addressId") final Long addressId) {
         addressService.removeAddress(addressId);
         return wsResponseBuilder.getNoContetyWsResponse(WsResponseCode.ADDRESS_REMOVE_SUCCESS);
     }
 
     @RequestMapping(value = "/address/{addressId}", method = RequestMethod.PUT)
     public WsResponse updateAddress(@PathVariable("addressId") final Long addressId,
-                                    @RequestBody @Valid final Address address,
-                                    final HttpServletResponse response) {
+                                    @RequestBody @Valid final UpdateAddress address) {
         addressService.updateAddress(addressId, address);
         return wsResponseBuilder.getNoContetyWsResponse(WsResponseCode.ADDRESS_UPDATE_SUCCESS);
     }
@@ -114,6 +114,4 @@ public class AddressManagerController {
         logger.debug("CEP nao encontrado. cep={}", ex.getCep());
         return wsResponseBuilder.getNoContetyWsResponse(WsResponseCode.ADDRESS_INVALID_CEP, ex.getCep());
     }
-
-
 }
