@@ -10,6 +10,14 @@ public class AddressCreationResponse extends WsResponse{
     private final String cep;
     private final Long addressId;
 
+    /**
+     * Construtor utilizado pelo RestAssured
+     */
+    private AddressCreationResponse() {
+        this.cep = null;
+        this.addressId = null;
+    }
+
     public AddressCreationResponse(String cep, Long addressId) {
         this.cep = cep;
         this.addressId = addressId;

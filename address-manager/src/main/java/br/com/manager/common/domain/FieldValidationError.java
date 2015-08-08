@@ -11,6 +11,12 @@ public class FieldValidationError {
     private String fieldValue;
     private String message;
 
+    /**
+     * Construtor utilizado pelo RestAssured
+     */
+    private FieldValidationError() {
+    }
+
     public FieldValidationError(String fieldName, String fieldValue, String message) {
         this.fieldName = fieldName;
         this.fieldValue = fieldValue;
